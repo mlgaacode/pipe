@@ -1,7 +1,5 @@
 package
 {
-	import com.pipe.utils.AVM1MvoieProxy;
-	
 	import flash.desktop.NativeApplication;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
@@ -26,6 +24,7 @@ package
 	import flash.system.LoaderContext;
 	import flash.system.System;
 	import flash.text.TextField;
+	import flash.utils.ByteArray;
 	
 	import flashx.textLayout.elements.BreakElement;
 	
@@ -56,7 +55,7 @@ package
 			 stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGING,stageOrientationHandler);	
 			 	 
 			swfLoader=new Loader();
-			swfLoader.contentLoaderInfo.addEventListener(Event.INIT, onLoaded, false, 0, true);
+			swfLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaded);
 			var lc:LoaderContext=new LoaderContext();
 			lc.allowCodeImport=true;
 			swfLoader.load(new URLRequest("swf/pipe.swf"),lc);
@@ -72,17 +71,19 @@ package
 		}
 	
 		 private function onClickTest(e:MouseEvent):void
-		 {		
-			 stream.open(file,FileMode.WRITE);
+		 {	
+			 var ba:ByteArray=new ByteArray();
+			stream.open(file,FileMode.WRITE);
 			 var t:int=int(txt_info.text);
 			 t++;
-			 stream.writeByte(t);
-			 
+			 ba.writeMultiByte(t.toString(),"");
+			 stream.writeBytes(ba);
 			 stream.close();
-			 stream.open(file,FileMode.READ);
-			 t=stream.readByte();
-			 txt_info.text=""+t;
 			 trace("here:"+t);
+			 stream.open(file,FileMode.READ);
+			 stream.readBytes(ba,0,file.size);
+			 ba.position=0;
+			 txt_info.text=ba.readMultiByte(ba.length,"");			 
 			 stream.close();
 		 }
 
