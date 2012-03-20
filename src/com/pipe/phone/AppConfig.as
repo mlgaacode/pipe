@@ -5,7 +5,8 @@ package com.pipe.phone
 	import flash.events.Event;
 	import flash.events.StageOrientationEvent;
 	import flash.system.Capabilities;
-
+	import flash.text.ReturnKeyLabel;
+	
 	public class AppConfig
 	{
 		private var _orientatioin:String;
@@ -13,6 +14,7 @@ package com.pipe.phone
 		public var onActiateHandler:Function;
 		public var onDeactivateHandler:Function;
 		private var _deviceWidth:int,_deviceHeight:int;
+		private var _realWidth:int,_realHeight:int;
 		private var _deviceName:String;
 		public function AppConfig(stage:Stage)
 		{
@@ -21,13 +23,51 @@ package com.pipe.phone
 			NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, onDeactivateHandler);
 			_deviceWidth=Capabilities.screenResolutionX;
 			_deviceHeight=Capabilities.screenResolutionY;
-			setDeviceName();	
+			_realWidth=_deviceWidth;
+			_realHeight=_stage.stageHeight;
+			setDeviceName();
 		}
 		private function setDeviceName():void
 		{
-			if(_deviceWidth	
+			if(_deviceWidth>1024){
+				_deviceWidth=640;
+				_deviceHeight=960;
+				_realWidth=640;
+				_realHeight=920;
+				_deviceName="iphone4";
+				return;
+			}
+			if(getOS()=="IOS"){
+				if(_deviceWidth==320){
+					_deviceWidth=320;
+					_deviceHeight=480;
+					_realWidth=320;
+					_realHeight=460;
+					_deviceName="iphone3GS";
+					return;
+				}else{
+					_deviceWidth=640;
+					_deviceHeight=960;
+					_realWidth=640;
+					_realHeight=920;
+					_deviceName="iphone4";
+					return;
+				}
+			}else{
+				_deviceWidth = 480;
+				_deviceHeight = 854;				
+				_realWidth = 480;
+				_realHeight = 816;
+				_deviceName="android";
+			}
 		}
-		
+		public function getOS():String{
+			Capabilities.version.split(" ")[0];
+		}
+		public function getVersion():String
+		{
+			Capabilities.version.split(" ")[1];
+		}
 		public function get deviceName():String
 		{
 			return _deviceName;
