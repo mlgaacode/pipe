@@ -7,45 +7,71 @@ package com.pipe.utils
 
 	public class AVM1Proxy
 	{
-		private static var SOUNDPAUSE:String="sound_pause";
-		private static var SOUNDPLAY:String="sound_play";
+		public static var SOUNDPAUSE:String="sound_pause";
+		public static var SOUNDPLAY:String="sound_play";
 		
 		private var _filePath:String="";
-		private var file:File;
+		private var files:Vector.<File>;
+		private var _curr:int=0;
 		private var stream:FileStream;
+		private var _method:String="";
 		
 		public function AVM1Proxy(path:String)
 		{
 			_filePath=path;
-			file=new File(_filePath);
+			files=new Vector.<File>();
+			files[0]=new File(_filePath);
+			files[1]=new File(_filePath+"2");
 			stream=new FileStream();
+		}
+		private function get curr():int{
+			_curr=_curr==0?1:0;
+			return _curr;
 		}
 		/**
 		 * 
 		 * @param o={method,params}
 		 * 
 		 */		
-		public function sendMethod(o:Object):void{
-			var s:String=o.method+":"+o.params;
-			writetxt(s);
+		public function set sendMethod(method:String):void{
+			_method=method;
+			writetxt();
 		}
 		
 		private function readtxt():String
 		{
-			stream.open(file,FileMode.READ);
+			stream.open(files[_curr],FileMode.READ);
 			var ba:ByteArray=new ByteArray();
-			stream.readBytes(ba,0,file.size);
+			stream.position=0;
+			stream.readBytes(ba,0,files[_curr].size);
 			stream.close();
 			ba.position=0;
 			return ba.readMultiByte(ba.length,"");
 		}
 		
-		private function writetxt(s:String):void
-		{
+		private function writetxt():void
+		{			
 			var ba:ByteArray=new ByteArray();
-			ba.writeMultiByte(s,"");
-			stream.open(file,FileMode.WRITE);
+			switch(_method)
+			{
+				case SOUNDPLAY:
+				{
+					ba.writeMultiByte(SOUNDPLAY,"");
+					break;
+				}
+				case SOUNDPAUSE:
+				{
+					ba.writeMultiByte(SOUNDPAUSE,"");
+					break;
+				}
+			}
+			ba.position=0;
+			stream.open(files[_curr],FileMode.WRITE);
+			stream.position=0;
 			stream.writeBytes(ba,0,ba.length);
+			stream.close();
+			stream.open(files[curr],FileMode.WRITE);
+			stream.writeUTF("");
 			stream.close();
 		}
 	}

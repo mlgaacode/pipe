@@ -5,7 +5,6 @@ package com.pipe.phone
 	import flash.events.Event;
 	import flash.events.StageOrientationEvent;
 	import flash.system.Capabilities;
-	import flash.text.ReturnKeyLabel;
 	
 	public class AppConfig
 	{
@@ -19,13 +18,21 @@ package com.pipe.phone
 		public function AppConfig(stage:Stage)
 		{
 			_stage=stage;
-			NativeApplication.nativeApplication.addEventListener(Event.ACTIVATE, onActiateHandler);
-			NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, onDeactivateHandler);
+			NativeApplication.nativeApplication.addEventListener(Event.ACTIVATE, _onActiateHandler);
+			NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, _onDeactivateHandler);
 			_deviceWidth=Capabilities.screenResolutionX;
 			_deviceHeight=Capabilities.screenResolutionY;
 			_realWidth=_deviceWidth;
 			_realHeight=_stage.stageHeight;
 			setDeviceName();
+		}
+		private function _onActiateHandler(e:Event):void
+		{
+			if(onActiateHandler)onActiateHandler.call();
+		}
+		private function _onDeactivateHandler(e:Event):void
+		{
+			if(onDeactivateHandler)onDeactivateHandler.call();
 		}
 		private function setDeviceName():void
 		{
@@ -62,11 +69,11 @@ package com.pipe.phone
 			}
 		}
 		public function getOS():String{
-			Capabilities.version.split(" ")[0];
+			return Capabilities.version.split(" ")[0];
 		}
 		public function getVersion():String
 		{
-			Capabilities.version.split(" ")[1];
+			return Capabilities.version.split(" ")[1];
 		}
 		public function get deviceName():String
 		{
